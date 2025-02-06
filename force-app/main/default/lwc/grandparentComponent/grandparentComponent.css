@@ -1,0 +1,12 @@
+.grandparent {
+    padding: 20px;
+    background-color: #e8f5e9; /* Light green */
+    border: 2px solid #43a047;
+    border-radius: 8px;
+}
+
+.grandparent-header {
+    color: #1b5e20;
+    font-size: 24px;
+    text-align: center;
+}
