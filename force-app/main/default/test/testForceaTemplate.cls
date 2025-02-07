@@ -33,6 +33,9 @@ private class testForceaTemplate {
         // THEN the records are inserted successfully
         System.assert(insertionIsValid(Account.SObjectType), ERROR_MESSAGE);
         System.assert(insertionIsValid(Case.SObjectType), ERROR_MESSAGE);
+
+        System.assertEquals(5, [Select id from Account].size());
+
     }
    
 
