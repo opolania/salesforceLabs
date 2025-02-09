@@ -1,0 +1,9 @@
+<template>
+  <b>Imperative Call - Button click</b>
+
+  <lightning-input type="text" name="inputxxx" label="Enter Country" data-id="shippingCountryInput"></lightning-input>
+
+  <lightning-button label="GetAccountbyCountry" onclick={getAccountsData}></lightning-button>
+
+  <lightning-datatable key-field={id} data={accounts} columns={columns}> </lightning-datatable>
+</template>

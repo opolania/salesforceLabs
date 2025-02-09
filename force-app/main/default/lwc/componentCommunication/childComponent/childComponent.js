@@ -12,4 +12,14 @@ export default class ChildComponent extends LightningElement {
         this.dispatchEvent(customEvent); // Dispatches the custom event
         console.log('event from child dispatch');
     }
+
+
+    dispatchOmarEvent(){
+        const omarEvent = new CustomEvent   ('omarevent', {
+            bubbles: true,     // Allows the event to bubble up the DOM
+            composed:true,
+            detail: { message: 'Hello from Child Component Omar event!' } // Event detail
+        });
+        this.dispatchEvent(omarEvent);
+    }
 }
