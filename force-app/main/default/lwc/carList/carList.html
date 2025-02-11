@@ -1,0 +1,11 @@
+<template>
+  <div>
+    <template for:each={carlist} for:item="car">
+      <lightning-card key={car.id} title={car.title}>
+        <c-car brand={car.brand} model={car.model} year={car.year}></c-car>
+        <lightning-button label="Remove" onclick={handleRemoveCar} data-id={car.id}></lightning-button>
+      </lightning-card>
+    </template>
+    <lightning-button label="Add " onclick={handleAddCar}></lightning-button>
+  </div>
+</template>
