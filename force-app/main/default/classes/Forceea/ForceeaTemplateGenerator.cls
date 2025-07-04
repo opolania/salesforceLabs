@@ -2,11 +2,11 @@ public class ForceeaTemplateGenerator {
 
     public static Forceea.Template templateAccounts() {
         return new Forceea.Template()
-            .add('Accounts', new FObject(Account.SObjectType, 5)
+            .add('Accounts', new FObject(Account.SObjectType, 8000)
                 .setGroupName('GroupAccounts')
                 .setDefinition(Account.Industry, 'random type(picklist)')
                 .setDefinition(Account.Name, 'static value(Company-)')
-                .setDefinition(Account.Name, 'serial type(number) from(1) step(1) scale(0)')
+                .setDefinition(Account.Name, 'serial type(number) from(8001) step(1) scale(0)')
                 .setDefinition(Account.ShippingStreet, 'copy field(BillingStreet)')
                 .setDefinition(Account.ShippingPostalCode, 'copy field(BillingPostalCode)')
                 .setDefinition(Account.ShippingCity, 'copy field(BillingCity)')
@@ -18,18 +18,20 @@ public class ForceeaTemplateGenerator {
 
     public static Forceea.Template templateContacts() {
         return new Forceea.Template()
-            .add('Contacts', new FObject(Contact.SObjectType, 5)
-                .setGroupName('GroupContacts')
-                .setDefinition(Contact.AccountId, 'parent(Account)')
-                .setDefinition(Contact.FirstName, 'random type(firstName)')
-                .setDefinition(Contact.LastName, 'random type(lastName)')
-                .setDefinition(Contact.Email, 'random type(email)')
-                .setDefinition(Contact.Phone, 'random type(phone)')
+            .add('Contacts', new FObject(Contact.SObjectType, 5000)
+                .setDefinition(Contact.FirstName, 'random type(firstName) group(mailing)')
+                .setDefinition(Contact.LastName, 'random type(lastName) group(mailing)')
+                .setDefinition(Contact.Email, 'copy field(firstName)')
+                .setDefinition(Contact.Email, 'copy field(lastName)')
+                .setDefinition(Contact.Email, 'static value(@gmail.com)')
                 .setDefinition(Contact.MailingStreet, 'random type(street) group(Mailing)')
                 .setDefinition(Contact.MailingPostalCode, 'random type(postalCode) group(Mailing)')
                 .setDefinition(Contact.MailingCity, 'random type(city) group(Mailing)')
                 .setDefinition(Contact.MailingState, 'random type(state) group(Mailing)')
                 .setDefinition(Contact.MailingCountry, 'random type(country) group(Mailing)')
+                .setDefinition(Contact.AccountId,
+                    'random lookup(Account)   source(salesforce)')
+                 .setVerbose('debug')
             );
     }
 

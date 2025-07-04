@@ -1,0 +1,60 @@
+<!-- recordList.html -->
+<template>
+    <lightning-card title="Lista con Lazy Loading 333www3rrrrrrrrrrr">
+        <!-- Contenedor con scroll -->
+        <div 
+            class="record-container slds-scrollable_y" 
+            style="height: 400px;"
+            onscroll={handleScroll}
+        >
+            <!-- Lista de registros -->
+            <template for:each={records} for:item="record">
+                <div key={record.Id} class="slds-m-bottom_small">
+                    <lightning-tile 
+                        label={record.Name} 
+                        href={record.recordUrl}
+                    >
+                        <p class="slds-truncate">{record.Description}</p>
+                    </lightning-tile>
+                </div>
+            </template>
+
+            <!-- Indicador de carga -->
+            <template if:true={isLoading}>
+                <div class="slds-text-align_center slds-m-vertical_medium">
+                    <lightning-spinner 
+                        alternative-text="Cargando..." 
+                        size="small"
+                    ></lightning-spinner>
+                    <p>Cargando más registros...</p>
+                </div>
+            </template>
+
+            <!-- Mensaje cuando no hay más registros -->
+            <template if:false={hasMore}>
+                <div class="slds-text-align_center slds-m-vertical_medium">
+                    <p class="slds-text-color_weak">
+                        No hay más registros para mostrar
+                    </p>
+                </div>
+            </template>
+        </div>
+
+        <!-- Botón para cargar más manualmente -->
+        <div slot="actions">
+            <lightning-button
+                label="Cargar Más"
+                onclick={loadMoreRecords}
+                disabled={isLoading}
+                if:true={hasMore}
+            ></lightning-button>
+
+            <lightning-button
+                label="Refrescar"
+                onclick={refreshData}
+                disabled={isLoading}
+                variant="neutral"
+            ></lightning-button>
+        </div>
+    </lightning-card>
+</template>
