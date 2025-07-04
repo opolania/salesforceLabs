@@ -11,7 +11,7 @@ sf org login web --set-default-dev-hub --alias my-hub-org
   "settings": {
     "lightningExperienceSettings": {
       "enableS1DesktopEnabled": true,
-     ** "enableLightningPreviewPref": true**
+      "enableLightningPreviewPref": true
     },
     "mobileSettings": {
       "enableS1EncryptedStoragePref2": false
