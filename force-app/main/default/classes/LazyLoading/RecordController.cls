@@ -37,34 +37,20 @@ public with sharing class RecordController {
                 ' ORDER BY CreatedDate asc';
             // Determinar si hay más registros
             Database.Cursor locator =  Database.getCursor(query);
-            Boolean hasMore;
+            Integer totalRecords = locator.getNumRecords();
+            Boolean hasMore = false;
 
-            if((offset+pageSize) - locator.getNumRecords() > 0){
-                hasMore = false;
-                if(locator.getNumRecords() - offset > 0){
-                    pageSize = locator.getNumRecords() - offset;
-                    if(pageSize < 0 ){
-                        pageSize = 0;
-                    } 
-                }
+            // Adjust pageSize if it exceeds available records
+            if (offset + pageSize > totalRecords) {
+                pageSize = Math.max(totalRecords - offset, 0);
             }
-            if(locator.getNumRecords()-offset-pageSize >= 0){
-                hasMore = false;
-            }
-            if(locator.getNumRecords()-offset-pageSize > 0){
-                hasMore = true;
 
-            }       
-           
-            if(offset+pageSize > locator.getNumRecords()){
-                hasMore = false;
-                offset = locator.getNumRecords();
-                pageSize = locator.getNumRecords() - offset;//remaining records to show
-            } else {
+            // There are more records if after this page, offset+pageSize < totalRecords
+            if (offset + pageSize < totalRecords) {
                 hasMore = true;
             }
-            
-            List<Account> accounts = locator.fetch(offset,pageSize);
+
+            List<Account> accounts = locator.fetch(offset, pageSize);
            
             
             // Convertir a wrapper
@@ -84,7 +70,7 @@ public with sharing class RecordController {
             RecordResponse response = new RecordResponse();
             response.records = recordWrappers;
             response.hasMore = hasMore;
-            response.totalCount = locator.getNumRecords();
+            response.totalCount = totalRecords;
             
             return response;
             
