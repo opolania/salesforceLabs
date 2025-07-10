@@ -48,7 +48,7 @@ Update "orgName" to your preferred Scratch Org name if desired.
 ## 4. Create Scratch Org
 
 ```bash
-sf org create scratch --definition-file config/project-scratch-def.json --alias scratchOrg --target-dev-hub trailheadOrg
+sf org create scratch --definition-file config/project-scratch-def.json --alias scratchOrg --target-dev-hub trailheadOrg --duration-days 30
 ```
 
 ---
