@@ -52,6 +52,13 @@ sf org create scratch --definition-file config/project-scratch-def.json --alias 
 ```
 
 ---
+Poner la scratchOrg como default y abrirla
+```bash
+sf config:set target-org=scratchOrgName
+sfdx force:org:open
+```
+
+---
 
 ## 5. Set Password Admin Scratch Org So Can Create Connection on VS Code
 
