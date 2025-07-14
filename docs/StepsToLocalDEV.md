@@ -15,6 +15,8 @@ Ensure your Salesforce org supports local development and you have the Salesforc
 Authorize your Dev Hub org, which allows you to create and manage Scratch Orgs.
 
 ```bash
+display url and password for scratch org
+sf org display user --target-org scratchOrg
 sf org login web --set-default-dev-hub --alias my-hub-org
 ```
 
