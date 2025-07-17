@@ -2,7 +2,7 @@ public class ForceeaTemplateGenerator {
 
     public static Forceea.Template templateAccounts() {
         return new Forceea.Template()
-            .add('Accounts', new FObject(Account.SObjectType, 8000)
+            .add('Accounts', new FObject(Account.SObjectType, 5000)
                 .setGroupName('GroupAccounts')
                 .setDefinition(Account.Industry, 'random type(picklist)')
                 .setDefinition(Account.Name, 'static value(Company-)')

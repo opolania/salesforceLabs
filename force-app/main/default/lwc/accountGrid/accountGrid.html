@@ -1,0 +1,60 @@
+<template>
+    <lightning-card title="Cuentas" icon-name="standard:account">
+        <div class="slds-card__body slds-card__body_inner">
+            
+            <!-- Spinner de carga -->
+            <template lwc:if={isLoading}>
+                <div class="loading-container">
+                    <lightning-spinner alternative-text="Cargando cuentas..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+            
+            <!-- Contenido cuando NO está cargando -->
+            <template lwc:else>
+                <!-- Grilla de cuentas -->
+                <template lwc:if={hasAccounts}>
+                    <div class="accounts-grid">
+                        <template for:each={accounts} for:item="account">
+                            <div key={account.Id} class="grid-item">
+                                <c-account-card account={account}></c-account-card>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+                
+                <!-- Mensaje cuando no hay cuentas -->
+                <template lwc:else>
+                    <div class="no-accounts-container">
+                        <lightning-icon icon-name="utility:company" size="large"></lightning-icon>
+                        <h3 class="no-accounts-title">No hay cuentas disponibles</h3>
+                    </div>
+                </template>
+            </template>
+            
+            <!-- Información y controles de paginación -->
+            <template lwc:if={showPagination}>
+                <div class="pagination-section">
+                    <div class="pagination-info">
+                        <span class="page-info-text">{pageInfo}</span>
+                    </div>
+                    
+                    <div class="pagination-controls">
+                        <lightning-button
+                            label="Anterior"
+                            onclick={handlePrevious}
+                            disabled={isPreviousDisabled}
+                            variant="neutral">
+                        </lightning-button>
+                        
+                        <lightning-button
+                            label="Siguiente"
+                            onclick={handleNext}
+                            disabled={isNextDisabled}
+                            variant="neutral">
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

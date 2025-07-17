@@ -1,0 +1,99 @@
+.account-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #e0e5e9;
+    height: 100%;
+}
+
+.account-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.avatar-container {
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.account-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.account-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: #181818;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.account-industry {
+    font-size: 14px;
+    color: #706e6b;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-style: italic;
+}
+
+.card-body {
+    flex: 1;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.info-row lightning-icon {
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.info-text {
+    font-size: 14px;
+    color: #444;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info-text.clickable {
+    cursor: pointer;
+    color: #1589ee;
+}
+
+.info-text.clickable:hover {
+    text-decoration: underline;
+}
+
+.info-text.revenue {
+    font-weight: 600;
+    color: #2e7d32;
+}

@@ -1,0 +1,42 @@
+<template>
+    <div class="account-card" onclick={handleAccountClick}>
+        <div class="card-header">
+            <div class="avatar-container">
+                <div class="account-avatar">
+                    <lightning-icon icon-name={industryIcon} size="medium" variant="inverse"></lightning-icon>
+                </div>
+            </div>
+            <div class="account-info">
+                <h3 class="account-name">{displayName}</h3>
+                <p class="account-industry">{displayIndustry}</p>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="info-row">
+                <lightning-icon icon-name="utility:categories" size="x-small"></lightning-icon>
+                <span class="info-text">{displayType}</span>
+            </div>
+            
+            <div class="info-row">
+                <lightning-icon icon-name="utility:phone_portrait" size="x-small"></lightning-icon>
+                <span class="info-text">{displayPhone}</span>
+            </div>
+            
+            <div class="info-row">
+                <lightning-icon icon-name="utility:world" size="x-small"></lightning-icon>
+                <span class="info-text clickable" onclick={handleWebsiteClick}>{displayWebsite}</span>
+            </div>
+            
+            <div class="info-row">
+                <lightning-icon icon-name="utility:people" size="x-small"></lightning-icon>
+                <span class="info-text">{displayEmployees}</span>
+            </div>
+            
+            <div class="info-row">
+                <lightning-icon icon-name="utility:money" size="x-small"></lightning-icon>
+                <span class="info-text revenue">{displayRevenue}</span>
+            </div>
+        </div>
+    </div>
+</template>

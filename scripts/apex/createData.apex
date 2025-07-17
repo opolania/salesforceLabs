@@ -24,10 +24,10 @@ APSM_journeys.insertRecords(true);
 Forceea.Template AFM_journeys = ForceeaTemplateGenerator.templateAFMJourneysWithContacts();
 AFM_journeys.insertRecords(true);
 
-
-Forceea.Template templateAccounts = ForceeaTemplateGenerator.templateAccounts();
-templateAccounts.insertRecords(true);
-
-*/
 Forceea.Template templateContacts = ForceeaTemplateGenerator.templateContacts();
 templateContacts.insertRecords(true);
+
+
+*/
+Forceea.Template templateAccounts = ForceeaTemplateGenerator.templateAccounts();
+templateAccounts.insertRecords(true);
