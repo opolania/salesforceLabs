@@ -59,7 +59,7 @@ if (!step2) {
 }
 
 // PASO 3: Instalar paquete ForceEA
-console.log('\n⚠️  NOTA: El siguiente paso puede tardar hasta 5 minutos. Por favor espera...');
+console.log('\n⚠️  NOTA: El siguiente paso puede tardar hasta 10 minutos. Por favor espera...');
 const step3 = runCommand(
     `sf package install -w 10 -p 04tJ8000000PbNdIAK -r --target-org ${scratchOrgName}`,
     `PASO 3: Instalando paquete ForceEA`
@@ -98,3 +98,9 @@ console.log(`Scratch org: ${scratchOrgName} (vigencia: 30 días)`);
 console.log('Estado: Establecida como org por defecto');
 console.log('Clase ForceeaTemplateGenerator desplegada exitosamente');
 console.log('====================================================');
+
+
+const step6 = runCommand(
+    `sf org open  --target-org ${scratchOrgName}`,
+    `PASO 6: Abriendo la scratch org ${scratchOrgName} en el navegador`
+);
