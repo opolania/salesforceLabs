@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Loop y await</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .event-loop-diagram {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            margin: 20px 0;
+            min-height: 500px;
+        }
+        
+        .js-engine {
+            grid-column: 1;
+            grid-row: 1 / 3;
+            background: #2d2d2d;
+            border: 3px solid #00ff88;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .web-apis {
+            grid-column: 3;
+            grid-row: 1;
+            background: #2d2d2d;
+            border: 3px solid #ff6b35;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .callback-queue {
+            grid-column: 2 / 4;
+            grid-row: 2;
+            background: #2d2d2d;
+            border: 3px solid #ffd23f;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .microtask-queue {
+            grid-column: 2 / 4;
+            grid-row: 3;
+            background: #2d2d2d;
+            border: 3px solid #ff79c6;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .priority-badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #ff79c6;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #00ff88;
+        }
+        
+        .call-stack, .heap {
+            background: #1e1e1e;
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            min-height: 80px;
+        }
+        
+        .stack-item, .queue-item {
+            background: #444;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+        
+        .stack-item.active {
+            background: #ff6b35;
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        .queue-item.await {
+            background: #ff79c6;
+            color: #000;
+        }
+        
+        .queue-item.callback {
+            background: #ffd23f;
+            color: #000;
+        }
+        
+        .queue-item.moving {
+            animation: moveToStack 1s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes moveToStack {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(-200px) translateY(-100px); }
+            100% { transform: translateX(-400px) translateY(-200px); }
+        }
+        
+        .code-example {
+            background: #1e1e1e;
+            border: 2px solid #444;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .keyword { color: #ff79c6; font-weight: bold; }
+        .function-name { color: #50fa7b; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; font-style: italic; }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #00ff88;
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover { background: #00cc6a; }
+        button:disabled {
+            background: #666;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+        
+        .explanation {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #00ff88;
+        }
+        
+        .vs-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .vs-item {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #444;
+        }
+        
+        .vs-item.microtask {
+            border-color: #ff79c6;
+        }
+        
+        .vs-item.callback {
+            border-color: #ffd23f;
+        }
+        
+        h1, h2 { color: #00ff88; text-align: center; }
+        
+        .arrow {
+            position: absolute;
+            color: #00ff88;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .event-loop-label {
+            grid-column: 2;
+            grid-row: 1;
+            text-align: center;
+            align-self: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        
+        @media (max-width: 1200px) {
+            .event-loop-diagram {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+            }
+            
+            .js-engine { grid-column: 1; grid-row: 1; }
+            .web-apis { grid-column: 1; grid-row: 2; }
+            .callback-queue { grid-column: 1; grid-row: 3; }
+            .microtask-queue { grid-column: 1; grid-row: 4; }
+            .event-loop-label { grid-column: 1; grid-row: 2; }
+            
+            .vs-comparison { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Event Loop: await vs setTimeout</h1>
+        
+        <div class="explanation">
+            <h3 style="color: #ff79c6;">🎯 Respuesta clave: await NO va a Callback Queue</h3>
+            <p><strong>await</strong> va a la <strong>Microtask Queue</strong> que tiene <strong>MAYOR PRIORIDAD</strong> que Callback Queue</p>
+        </div>
+        
+        <div class="event-loop-diagram">
+            <div class="js-engine">
+                <div class="section-title">🧠 JS Engine</div>
+                <div class="call-stack">
+                    <div style="font-weight: bold; margin-bottom: 10px;">Call Stack</div>
+                    <div id="callStack"></div>
+                </div>
+                <div class="heap">
+                    <div style="font-weight: bold; margin-bottom: 10px;">Heap</div>
+                    <div>Variables, objetos...</div>
+                </div>
+            </div>
+            
+            <div class="event-loop-label">
+                <div>🔄 EVENT LOOP</div>
+                <div style="font-size: 14px; margin-top: 10px;">
+                    1. Microtasks primero<br>
+                    2. Callbacks después
+                </div>
+            </div>
+            
+            <div class="web-apis">
+                <div class="section-title">🌐 Web APIs</div>
+                <div style="background: #1e1e1e; padding: 10px; border-radius: 5px; margin: 5px 0;">
+                    <div>DOM Events</div>
+                </div>
+                <div style="background: #1e1e1e; padding: 10px; border-radius: 5px; margin: 5px 0;">
+                    <div>Timers</div>
+                </div>
+                <div style="background: #1e1e1e; padding: 10px; border-radius: 5px; margin: 5px 0;">
+                    <div>Fetch APIs</div>
+                </div>
+            </div>
+            
+            <div class="callback-queue">
+                <div class="priority-badge" style="background: #ffd23f; color: #000;">PRIORIDAD BAJA</div>
+                <div class="section-title">⏳ Callback Queue</div>
+                <div style="font-size: 12px; margin-bottom: 10px;">setTimeout, setInterval, DOM events</div>
+                <div id="callbackQueue"></div>
+            </div>
+            
+            <div class="microtask-queue">
+                <div class="priority-badge">PRIORIDAD ALTA</div>
+                <div class="section-title">⚡ Microtask Queue</div>
+                <div style="font-size: 12px; margin-bottom: 10px;">await, Promise.then(), queueMicrotask()</div>
+                <div id="microtaskQueue"></div>
+            </div>
+        </div>
+        
+        <div class="code-example">
+            <div><span class="comment">// Ejemplo de prioridades</span></div>
+            <div><span class="keyword">async function</span> <span class="function-name">ejemplo</span>() {</div>
+            <div>&nbsp;&nbsp;console.log(<span class="string">'1. Síncrono'</span>);</div>
+            <div>&nbsp;&nbsp;</div>
+            <div>&nbsp;&nbsp;setTimeout(() => console.log(<span class="string">'3. Callback Queue'</span>), 0);</div>
+            <div>&nbsp;&nbsp;</div>
+            <div>&nbsp;&nbsp;<span class="keyword">await</span> Promise.resolve().then(() => console.log(<span class="string">'2. Microtask'</span>));</div>
+            <div>&nbsp;&nbsp;</div>
+            <div>&nbsp;&nbsp;console.log(<span class="string">'4. Después await'</span>);</div>
+            <div>}</div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="runDemo()" id="runBtn">🚀 Ejecutar Demo</button>
+            <button onclick="resetDemo()">🔄 Reiniciar</button>
+        </div>
+        
+        <div class="vs-comparison">
+            <div class="vs-item callback">
+                <h3 style="color: #ffd23f;">📦 Callback Queue</h3>
+                <ul style="text-align: left; margin: 10px 0;">
+                    <li><strong>setTimeout</strong></li>
+                    <li><strong>setInterval</strong></li>
+                    <li><strong>DOM events</strong> (click, scroll)</li>
+                    <li><strong>HTTP callbacks</strong></li>
+                </ul>
+                <div style="text-align: center; margin-top: 15px;">
+                    <strong>⏳ PRIORIDAD BAJA</strong><br>
+                    <small>Se ejecuta DESPUÉS de microtasks</small>
+                </div>
+            </div>
+            
+            <div class="vs-item microtask">
+                <h3 style="color: #ff79c6;">⚡ Microtask Queue</h3>
+                <ul style="text-align: left; margin: 10px 0;">
+                    <li><strong>await</strong> (Promise resolution)</li>
+                    <li><strong>Promise.then()</strong></li>
+                    <li><strong>queueMicrotask()</strong></li>
+                    <li><strong>MutationObserver</strong></li>
+                </ul>
+                <div style="text-align: center; margin-top: 15px;">
+                    <strong>🚀 PRIORIDAD ALTA</strong><br>
+                    <small>Se ejecuta ANTES que callbacks</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h3>🎯 En tu código LWC:</h3>
+            <div class="code-example">
+                <div><span class="keyword">async</span> <span class="function-name">handleCreateSamples</span>() {</div>
+                <div>&nbsp;&nbsp;this.isCreatingSamples = true;</div>
+                <div>&nbsp;&nbsp;</div>
+                <div>&nbsp;&nbsp;<span class="comment">// ⚡ Esto va a MICROTASK QUEUE (prioridad alta)</span></div>
+                <div>&nbsp;&nbsp;<span class="keyword">await</span> this.createSampleProductsMethod();</div>
+                <div>&nbsp;&nbsp;</div>
+                <div>&nbsp;&nbsp;<span class="comment">// 🎯 Se ejecuta ANTES que setTimeout, clicks, etc.</span></div>
+                <div>&nbsp;&nbsp;this.showToast('Éxito', result + ' 🎉', 'success');</div>
+                <div>}</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRunning = false;
+        
+        async function runDemo() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('runBtn').disabled = true;
+            
+            const callStack = document.getElementById('callStack');
+            const callbackQueue = document.getElementById('callbackQueue');
+            const microtaskQueue = document.getElementById('microtaskQueue');
+            
+            // Limpiar
+            callStack.innerHTML = '';
+            callbackQueue.innerHTML = '';
+            microtaskQueue.innerHTML = '';
+            
+            // 1. Función principal en call stack
+            addToCallStack('ejemplo()');
+            await sleep(1000);
+            
+            // 2. console.log síncrono
+            addToCallStack('console.log("1. Síncrono")');
+            await sleep(800);
+            removeFromCallStack();
+            
+            // 3. setTimeout va a Web APIs, luego a Callback Queue
+            addToCallStack('setTimeout()');
+            await sleep(500);
+            removeFromCallStack();
+            addToCallbackQueue('console.log("3. Callback")');
+            
+            // 4. await va a Microtask Queue
+            addToCallStack('await Promise.resolve()');
+            await sleep(500);
+            removeFromCallStack();
+            addToMicrotaskQueue('console.log("2. Microtask")');
+            
+            await sleep(1000);
+            
+            // 5. Event Loop: Microtasks PRIMERO
+            console.log('🔄 Event Loop: procesando microtasks primero...');
+            await processMicrotasks();
+            
+            await sleep(500);
+            
+            // 6. Continúa después del await
+            addToCallStack('console.log("4. Después await")');
+            await sleep(800);
+            removeFromCallStack();
+            
+            // 7. Event Loop: Callbacks después
+            console.log('🔄 Event Loop: procesando callbacks...');
+            await processCallbacks();
+            
+            // 8. Función termina
+            removeFromCallStack();
+            
+            console.log('✅ Demo completada');
+            isRunning = false;
+            document.getElementById('runBtn').disabled = false;
+        }
+        
+        function addToCallStack(text) {
+            const item = document.createElement('div');
+            item.className = 'stack-item active';
+            item.textContent = text;
+            document.getElementById('callStack').appendChild(item);
+        }
+        
+        function removeFromCallStack() {
+            const callStack = document.getElementById('callStack');
+            const items = callStack.querySelectorAll('.stack-item');
+            if (items.length > 0) {
+                callStack.removeChild(items[items.length - 1]);
+            }
+        }
+        
+        function addToCallbackQueue(text) {
+            const item = document.createElement('div');
+            item.className = 'queue-item callback';
+            item.textContent = text;
+            document.getElementById('callbackQueue').appendChild(item);
+        }
+        
+        function addToMicrotaskQueue(text) {
+            const item = document.createElement('div');
+            item.className = 'queue-item await';
+            item.textContent = text;
+            document.getElementById('microtaskQueue').appendChild(item);
+        }
+        
+        async function processMicrotasks() {
+            const queue = document.getElementById('microtaskQueue');
+            const items = queue.querySelectorAll('.queue-item');
+            
+            for (let item of items) {
+                item.classList.add('moving');
+                addToCallStack(item.textContent);
+                await sleep(500);
+                removeFromCallStack();
+                queue.removeChild(item);
+                await sleep(300);
+            }
+        }
+        
+        async function processCallbacks() {
+            const queue = document.getElementById('callbackQueue');
+            const items = queue.querySelectorAll('.queue-item');
+            
+            for (let item of items) {
+                item.classList.add('moving');
+                addToCallStack(item.textContent);
+                await sleep(500);
+                removeFromCallStack();
+                queue.removeChild(item);
+                await sleep(300);
+            }
+        }
+        
+        function resetDemo() {
+            document.getElementById('callStack').innerHTML = '';
+            document.getElementById('callbackQueue').innerHTML = '';
+            document.getElementById('microtaskQueue').innerHTML = '';
+            document.getElementById('runBtn').disabled = false;
+            isRunning = false;
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>
