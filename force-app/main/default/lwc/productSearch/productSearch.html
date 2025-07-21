@@ -1,0 +1,185 @@
+<!-- productSearch.html -->
+<template>
+    <lightning-card title="🔥 Búsqueda de Productos - @wire Real" icon-name="utility:product">
+        
+        <!-- Header con controles -->
+        <div slot="actions">
+            <lightning-button-group>
+                 <lightning-button
+                    variant="brand"
+                    label="Crear Más Productos"
+                    onclick={handleCreateSamples}
+                    disabled={isCreatingSamples}
+                    icon-name="utility:add">
+                </lightning-button>
+                <lightning-button
+                    variant="neutral"
+                    label="Limpiar"
+                    onclick={handleClear}
+                    icon-name="utility:clear">
+                </lightning-button>
+                  <lightning-button
+                    variant="brand"
+                    label="Eliminar Registros"
+                    onclick={handleDeleteAll}
+                    disabled={isDeleting}
+                    icon-name="utility:delete">"
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="slds-card__body slds-card__body_inner">
+            
+            <!-- 🔍 BARRA DE BÚSQUEDA -->
+            <div class="slds-m-bottom_medium">
+                <lightning-input
+                    type="search"
+                    label="Búsqueda Reactiva de Productos"
+                    placeholder="Escribe para buscar automáticamente..."
+                    value={searchTerm}
+                    onchange={handleSearch}
+                    field-level-help="Los resultados se actualizan automáticamente usando @wire">
+                </lightning-input>
+                
+                <!-- Indicador de búsqueda activa -->
+                <template if:true={searchTerm}>
+                    <div class="slds-m-top_x-small">
+                        <lightning-badge label={searchTerm} class="slds-m-right_x-small"></lightning-badge>
+                        <span class="slds-text-body_small slds-text-color_success">
+                            ⚡ Búsqueda reactiva activa - @wire ejecutándose automáticamente
+                        </span>
+                    </div>
+                </template>
+            </div>
+
+            <!-- ❌ ERROR MESSAGE -->
+            <template if:true={error}>
+                <div class="slds-m-bottom_medium">
+                    <div class="slds-notify slds-notify_alert slds-alert_error">
+                        <h2 class="slds-text-heading_x-small">
+                            Error al cargar productos:
+                        </h2>
+                        <p class="slds-m-top_x-small">
+                            {error.body.message}
+                        </p>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 📋 RESULTADOS DE PRODUCTOS -->
+            <!-- Header de resultados -->
+            <div class="slds-m-bottom_small">
+                <lightning-layout>
+                    <lightning-layout-item flexibility="grow">
+                        <h3 class="slds-text-heading_small">
+                            {searchSummary}
+                        </h3>
+                        <p class="slds-text-body_small slds-text-color_weak">
+                            {productCountMessage}
+                        </p>
+                    </lightning-layout-item>
+                </lightning-layout>
+            </div>
+
+            <!-- Lista de productos -->
+            <template if:true={hasProducts}>
+                <div class="slds-grid slds-wrap slds-gutters">
+                    <template for:each={products} for:item="product">
+                        <div key={product.Id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3">
+                            <article class="slds-card">
+                                <div class="slds-card__header">
+                                    <header class="slds-media slds-media_center">
+                                        <div class="slds-media__figure">
+                                            <lightning-icon icon-name="utility:product" size="small"></lightning-icon>
+                                        </div>
+                                        <div class="slds-media__body">
+                                            <h2 class="slds-card__header-title slds-truncate">
+                                                <span title={product.Name}>{product.Name}</span>
+                                            </h2>
+                                        </div>
+                                    </header>
+                                </div>
+                                <div class="slds-card__body slds-card__body_inner">
+                                    <dl class="slds-list_horizontal slds-wrap">
+                                        <template if:true={product.ProductCode}>
+                                            <dt class="slds-item_label slds-text-color_weak">Código:</dt>
+                                            <dd class="slds-item_detail">
+                                                <lightning-badge label={product.ProductCode}></lightning-badge>
+                                            </dd>
+                                        </template>
+                                        
+                                        <template if:true={product.Family}>
+                                            <dt class="slds-item_label slds-text-color_weak">Familia:</dt>
+                                            <dd class="slds-item_detail">
+                                                <lightning-badge label={product.Family}></lightning-badge>
+                                            </dd>
+                                        </template>
+                                        
+                                        <template if:true={product.Description}>
+                                            <dt class="slds-item_label slds-text-color_weak">Descripción:</dt>
+                                            <dd class="slds-item_detail">
+                                                <p class="slds-text-body_small">{product.Description}</p>
+                                            </dd>
+                                        </template>
+                                    </dl>
+                                </div>
+                            </article>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Mensaje cuando no hay resultados -->
+            <template if:false={hasProducts}>
+                <div class="slds-illustration slds-illustration_small">
+                    <div class="slds-text-align_center">
+                        <lightning-icon 
+                            icon-name="utility:search" 
+                            size="large" 
+                            class="slds-m-bottom_small">
+                        </lightning-icon>
+                        <h3 class="slds-text-heading_medium">
+                            <template if:true={searchTerm}>
+                                No se encontraron productos para "{searchTerm}"
+                            </template>
+                            <template if:false={searchTerm}>
+                                No hay productos disponibles
+                            </template>
+                        </h3>
+                        <template if:true={searchTerm}>
+                            <p class="slds-text-body_regular slds-m-top_small">
+                                Intenta con otros términos de búsqueda
+                            </p>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 🔧 EXPLICACIÓN TÉCNICA -->
+            <div class="slds-box slds-theme_info slds-m-top_large">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">
+                    ⚡ Magia de @wire en Acción:
+                </h3>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <ul class="slds-list_dotted">
+                            <li><strong>@api searchTerm:</strong> Propiedad configurable</li>
+                            <li><strong>$searchTerm:</strong> Parámetro reactivo en @wire</li>
+                            <li><strong>handleSearch():</strong> Solo actualiza searchTerm</li>
+                            <li><strong>@wire automático:</strong> Se ejecuta cuando searchTerm cambia</li>
+                        </ul>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <ul class="slds-list_dotted">
+                            <li><strong>cacheable=true:</strong> Método Apex optimizado</li>
+                            <li><strong>Sin llamadas manuales:</strong> Todo es reactivo</li>
+                            <li><strong>Console logs:</strong> Ver ejecución en DevTools</li>
+                            <li><strong>Toast notifications:</strong> Feedback al usuario</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+</template>
