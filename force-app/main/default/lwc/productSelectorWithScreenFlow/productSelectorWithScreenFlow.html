@@ -1,0 +1,339 @@
+<!-- productSelectorWithScreenFlow.html -->
+<template>
+    <lightning-card title="🎯 Selector de Productos para Flow" icon-name="utility:product_consumed">
+        
+        <!-- Header con controles -->
+        <div slot="actions">
+            <lightning-button-group>
+                <lightning-button
+                    variant="success"
+                    label="Completar Selección"
+                    onclick={handleCompleteSelection}
+                    disabled={hasNoSelection}
+                    icon-name="utility:check">
+                </lightning-button>
+                <lightning-button
+                    variant="destructive"
+                    label="Cancelar"
+                    onclick={handleCancelSelection}
+                    icon-name="utility:close">
+                </lightning-button>
+            </lightning-button-group>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="slds-card__body slds-card__body_inner">
+            
+            <!-- Mensaje del Flow -->
+            <template if:true={flowMessage}>
+                <div class="slds-box slds-theme_info slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_x-small slds-m-bottom_x-small">
+                        💬 Mensaje del Flow:
+                    </h3>
+                    <p>{flowMessage}</p>
+                    <template if:true={recordId}>
+                        <p class="slds-text-body_small slds-m-top_x-small">
+                            <strong>Contexto del registro:</strong> {recordId}
+                        </p>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Estado de selección -->
+            <div class="slds-box slds-theme_success slds-m-bottom_medium">
+                <div class="slds-grid">
+                    <div class="slds-col slds-grow">
+                        <h3 class="slds-text-heading_small">
+                            🎯 {selectionMessage}
+                        </h3>
+                        <template if:true={hasSelection}>
+                            <p class="slds-text-body_small slds-m-top_x-small">
+                                <strong>Seleccionados:</strong> {selectedProductNames}
+                            </p>
+                        </template>
+                    </div>
+                    <div class="slds-col slds-no-flex">
+                        <template if:true={hasSelection}>
+                            <lightning-button
+                                variant="neutral"
+                                label="Limpiar Selección"
+                                onclick={handleClearSelection}
+                                size="small"
+                                icon-name="utility:clear">
+                            </lightning-button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔍 BÚSQUEDA REACTIVA -->
+            <div class="slds-box slds-theme_default slds-m-bottom_medium">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">
+                    ⚡ Búsqueda Reactiva (Automática)
+                </h3>
+                
+                <lightning-input
+                    type="search"
+                    label="Búsqueda Automática"
+                    placeholder="Escribe para buscar automáticamente..."
+                    value={searchTerm}
+                    onchange={handleSearch}
+                    field-level-help="Los resultados se actualizan automáticamente usando @wire">
+                </lightning-input>
+                
+                <template if:true={searchTerm}>
+                    <div class="slds-m-top_x-small">
+                        <lightning-badge label={searchTerm} class="slds-m-right_x-small"></lightning-badge>
+                        <span class="slds-text-body_small slds-text-color_success">
+                            ⚡ Búsqueda reactiva activa
+                        </span>
+                    </div>
+                </template>
+                
+                <div class="slds-m-top_small">
+                    <lightning-button
+                        variant="neutral"
+                        label="Limpiar Búsqueda"
+                        onclick={handleClear}
+                        size="small"
+                        icon-name="utility:clear">
+                    </lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        label="Crear Productos de Muestra"
+                        onclick={handleCreateSamples}
+                        disabled={isCreatingSamples}
+                        size="small"
+                        icon-name="utility:add"
+                        class="slds-m-left_x-small">
+                    </lightning-button>
+                </div>
+            </div>
+
+            <!-- 🔨 BÚSQUEDA IMPERATIVA -->
+            <div class="slds-box slds-theme_shade slds-m-bottom_medium">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">
+                    🔨 Búsqueda Manual (Imperativa)
+                </h3>
+                
+                <lightning-layout>
+                    <lightning-layout-item size="8">
+                        <lightning-input
+                            type="text"
+                            label="Búsqueda Manual"
+                            placeholder="Escribe y haz clic en Buscar..."
+                            value={imperativeSearchTerm}
+                            onchange={handleImperativeSearch}
+                            field-level-help="Requiere hacer clic en el botón para buscar">
+                        </lightning-input>
+                    </lightning-layout-item>
+                    <lightning-layout-item size="4" class="slds-p-left_small">
+                        <div class="slds-m-top_large">
+                            <lightning-button-group>
+                                <lightning-button
+                                    variant="brand"
+                                    label="Buscar"
+                                    onclick={handleImperativeSearchButton}
+                                    disabled={isImperativeLoading}
+                                    icon-name="utility:search">
+                                </lightning-button>
+                                <lightning-button
+                                    variant="neutral"
+                                    label="Limpiar"
+                                    onclick={handleImperativeClear}
+                                    disabled={isImperativeLoading}
+                                    icon-name="utility:clear">
+                                </lightning-button>
+                            </lightning-button-group>
+                        </div>
+                    </lightning-layout-item>
+                </lightning-layout>
+                
+                <!-- Loading para búsqueda imperativa -->
+                <template if:true={isImperativeLoading}>
+                    <div class="slds-is-relative slds-m-top_small">
+                        <lightning-spinner alternative-text="Buscando..." size="small"></lightning-spinner>
+                        <p class="slds-text-align_center slds-m-top_x-small slds-text-body_small">
+                            Ejecutando búsqueda imperativa...
+                        </p>
+                    </div>
+                </template>
+            </div>
+
+            <!-- ❌ ERROR MESSAGE -->
+            <template if:true={error}>
+                <div class="slds-m-bottom_medium">
+                    <div class="slds-notify slds-notify_alert slds-alert_error">
+                        <h2 class="slds-text-heading_x-small">
+                            Error al cargar productos:
+                        </h2>
+                        <p class="slds-m-top_x-small">
+                            {error.body.message}
+                        </p>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 🔄 LOADING DE CREACIÓN -->
+            <template if:true={isCreatingSamples}>
+                <div class="slds-is-relative slds-m-bottom_medium">
+                    <lightning-spinner alternative-text="Creando productos..." size="small"></lightning-spinner>
+                    <p class="slds-text-align_center slds-m-top_small">
+                        🔨 Creando productos de muestra...
+                    </p>
+                </div>
+            </template>
+
+            <!-- 📋 RESULTADOS REACTIVOS -->
+            <template if:false={isCreatingSamples}>
+                <div class="slds-m-bottom_small">
+                    <h3 class="slds-text-heading_small">{searchSummary}</h3>
+                    <p class="slds-text-body_small slds-text-color_weak">{productCountMessage}</p>
+                </div>
+
+                <!-- Lista de productos reactivos -->
+                <template if:true={hasProducts}>
+                    <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium">
+                        <template for:each={products} for:item="product">
+                            <div key={product.Id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-large-size_1-of-3">
+                                <article class="slds-card product-card" 
+                                         data-product-id={product.Id} 
+                                         data-product-name={product.Name}
+                                         onclick={handleProductSelection}
+                                         style="cursor: pointer;">
+                                    
+                                    <div class="slds-card__header">
+                                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                            <h2 class="slds-card__header-title slds-truncate">
+                                                <span title={product.Name}>{product.Name}</span>
+                                            </h2>
+                                            <!-- Indicador de selección -->
+                                            <template for:each={selectedProductsInternal} for:item="selectedId">
+                                                <template if:true={selectedId}>
+                                                    <template if:true={product.Id}>
+                                                        <lightning-icon 
+                                                            key={selectedId}
+                                                            if:true={istheSameSelected}
+                                                            icon-name="utility:check"
+                                                            size="small"
+                                                            class="slds-text-color_success">
+                                                        </lightning-icon>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="slds-card__body slds-card__body_inner">
+                                        <template if:true={product.ProductCode}>
+                                            <lightning-badge label={product.ProductCode} class="slds-m-bottom_x-small"></lightning-badge>
+                                        </template>
+                                        
+                                        <template if:true={product.Family}>
+                                            <lightning-badge label={product.Family} class="slds-m-left_x-small slds-m-bottom_x-small"></lightning-badge>
+                                        </template>
+                                        
+                                        <span class="slds-badge slds-badge_lightest slds-m-bottom_x-small">@wire</span>
+                                        
+                                        <template if:true={product.Description}>
+                                            <p class="slds-text-body_small slds-m-top_x-small">{product.Description}</p>
+                                        </template>
+                                    </div>
+                                </article>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- Mensaje cuando no hay productos reactivos -->
+                <template if:false={hasProducts}>
+                    <div class="slds-text-align_center slds-p-around_medium">
+                        <lightning-icon icon-name="utility:search" size="small" class="slds-m-bottom_x-small"></lightning-icon>
+                        <p class="slds-text-body_regular">
+                            <template if:true={searchTerm}>
+                                No se encontraron productos para "{searchTerm}"
+                            </template>
+                            <template if:false={searchTerm}>
+                                Mostrando todos los productos disponibles
+                            </template>
+                        </p>
+                    </div>
+                </template>
+
+                <!-- Resultados imperativos -->
+                <template if:false={isImperativeLoading}>
+                    <template if:true={hasImperativeProducts}>
+                        <div class="slds-m-top_medium">
+                            <h4 class="slds-text-heading_small">{imperativeSearchSummary}</h4>
+                            <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">{imperativeProductCountMessage}</p>
+                            
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <template for:each={imperativeProducts} for:item="product">
+                                    <div key={product.Id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
+                                        <div class="slds-box slds-box_link product-card"
+                                             data-product-id={product.Id} 
+                                             data-product-name={product.Name}
+                                             onclick={handleProductSelection}
+                                             style="cursor: pointer;">
+                                            <h5 class="slds-text-heading_x-small slds-truncate">{product.Name}</h5>
+                                            <template if:true={product.ProductCode}>
+                                                <lightning-badge label={product.ProductCode} class="slds-m-top_x-small"></lightning-badge>
+                                            </template>
+                                            <span class="slds-badge slds-badge_inverse slds-m-left_x-small slds-m-top_x-small">Manual</span>
+                                            
+                                            <!-- Indicador de selección para productos imperativos -->
+                                            <template for:each={selectedProductsInternal} for:item="selectedId">
+                                                <template if:true={selectedId}>
+                                                    <template if:true={product.Id}>
+                                                        <lightning-icon 
+                                                            key={selectedId}
+                                                            if:true={istheSameSelected}
+                                                            icon-name="utility:check"
+                                                            size="small"
+                                                            class="slds-text-color_success slds-float_right">
+                                                        </lightning-icon>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <template if:true={imperativeError}>
+                        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small">
+                            <h4 class="slds-text-heading_x-small">Error en búsqueda imperativa:</h4>
+                            <p class="slds-m-top_x-small">{imperativeError.body.message}</p>
+                        </div>
+                    </template>
+                </template>
+            </template>
+
+            <!-- 🔧 INFORMACIÓN PARA DESARROLLADORES -->
+            <div class="slds-box slds-theme_warning slds-m-top_large">
+                <h3 class="slds-text-heading_small slds-m-bottom_small">
+                    🔄 Estado Actual para Flow:
+                </h3>
+                <div class="slds-grid slds-wrap">
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <ul class="slds-list_dotted">
+                            <li><strong>Total seleccionados:</strong> {totalSelectedCount}</li>
+                            <li><strong>IDs:</strong> {selectedProductIds}</li>
+                            <li><strong>Selección completada:</strong> {selectionCompleted}</li>
+                        </ul>
+                    </div>
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                        <ul class="slds-list_dotted">
+                            <li><strong>Múltiple selección:</strong> {allowMultipleSelection}</li>
+                            <li><strong>Máximo permitido:</strong> {maxSelections}</li>
+                            <li><strong>Puede seleccionar más:</strong> {canSelectMore}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Product Selector with Screen Flow</masterLabel>
+    <description>Componente LWC para seleccionar productos en un Screen Flow, retorna productos seleccionados al Flow</description>
+    
+    <!-- ✅ DISPONIBLE EN FLOWS -->
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    
+    <!-- 🔧 CONFIGURACIÓN PARA FLOWS -->
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            
+            <!-- 📥 PARÁMETROS DE ENTRADA (Flow → LWC) -->
+            <property 
+                name="searchTerm" 
+                type="String" 
+                default=""
+                label="Término de Búsqueda Inicial"
+                description="Término de búsqueda inicial para filtrar productos"/>
+                
+            <property 
+                name="flowMessage" 
+                type="String" 
+                label="Mensaje del Flow"
+                description="Mensaje informativo que se mostrará al usuario"/>
+                
+            <property 
+                name="maxSelections" 
+                type="Integer" 
+                default="5"
+                label="Máximo de Selecciones"
+                description="Número máximo de productos que el usuario puede seleccionar"/>
+                
+            <property 
+                name="allowMultipleSelection" 
+                type="Boolean" 
+                default="true"
+                label="Permitir Selección Múltiple"
+                description="Si se permite seleccionar múltiples productos o solo uno"/>
+                
+            <property 
+                name="recordId" 
+                type="String" 
+                label="ID del Registro"
+                description="ID del registro en contexto (opcional)"/>
+                
+            <property 
+                name="defaultProductIds" 
+                type="String" 
+                label="IDs de Productos Pre-seleccionados"
+                description="IDs de productos separados por coma para pre-seleccionar"/>
+            
+            <!-- 📤 PARÁMETROS DE SALIDA (LWC → Flow) -->
+            <property 
+                name="selectedProducts" 
+                type="String" 
+                label="Productos Seleccionados (JSON)"
+                description="Array JSON con los detalles completos de los productos seleccionados"
+                role="outputOnly"/>
+                
+            <property 
+                name="selectedProductIds" 
+                type="String" 
+                label="IDs de Productos Seleccionados"
+                description="IDs de los productos seleccionados separados por coma"
+                role="outputOnly"/>
+                
+            <property 
+                name="selectedProductNames" 
+                type="String" 
+                label="Nombres de Productos Seleccionados"
+                description="Nombres de los productos seleccionados separados por coma"
+                role="outputOnly"/>
+                
+            <property 
+                name="totalSelectedCount" 
+                type="Integer" 
+                label="Total de Productos Seleccionados"
+                description="Número total de productos seleccionados por el usuario"
+                role="outputOnly"/>
+                
+            <property 
+                name="selectionCompleted" 
+                type="Boolean" 
+                label="Selección Completada"
+                description="Indica si el usuario completó la selección (true) o canceló (false)"
+                role="outputOnly"/>
+                
+            <property 
+                name="userActionResult" 
+                type="String" 
+                label="Resultado de la Acción del Usuario"
+                description="Descripción textual de la acción realizada por el usuario"
+                role="outputOnly"/>
+                
+            <property 
+                name="selectionSummary" 
+                type="String" 
+                label="Resumen de Selección (JSON)"
+                description="Resumen detallado en formato JSON con estadísticas y contexto de la selección"
+                role="outputOnly"/>
+                
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
