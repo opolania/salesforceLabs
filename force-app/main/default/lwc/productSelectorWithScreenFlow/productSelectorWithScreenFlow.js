@@ -32,11 +32,7 @@ export default class ProductSelectorWithScreenFlow extends LightningElement {
     selectedProductsInternal = new Set(); // Para tracking interno
     hasValidatedSystem = false;
     
-    // Propiedades para búsqueda imperativa
-    imperativeSearchTerm = '';
-    imperativeProducts = [];
-    imperativeError;
-    isImperativeLoading = false;
+
 
     // Wire method que se ejecuta automáticamente cuando searchTerm cambia
     @wire(getProductsByName, { searchTerm: '$searchTerm' })
@@ -45,7 +41,10 @@ export default class ProductSelectorWithScreenFlow extends LightningElement {
         const { error, data } = result;
         
         if (data) {
-            this.products = data;
+            this.products = data.map(product => ({
+                ...product,
+                isSelected: this.selectedProductsInternal.has(product.Id)
+            }));
             this.error = undefined;
             console.log('✅ Productos cargados via @wire:', data.length);
             
@@ -127,19 +126,15 @@ export default class ProductSelectorWithScreenFlow extends LightningElement {
             this.selectedProductsInternal.has(product.Id)
         );
         
-        // También incluir productos de búsqueda imperativa si están seleccionados
-        const imperativeSelected = this.imperativeProducts.filter(product => 
-            this.selectedProductsInternal.has(product.Id)
-        );
+        // ✅ Actualizar flag de selección en todos los productos
+        this.products = this.products.map(product => ({
+            ...product,
+            isSelected: this.selectedProductsInternal.has(product.Id)
+        }));
         
         // Combinar ambas listas sin duplicados
         const allSelected = [...selectedProductsArray];
-        imperativeSelected.forEach(product => {
-            if (!allSelected.find(p => p.Id === product.Id)) {
-                allSelected.push(product);
-            }
-        });
-        
+                
         // Preparar datos para el Flow
         const productDetails = allSelected.map(product => ({
             Id: product.Id,
@@ -199,7 +194,7 @@ export default class ProductSelectorWithScreenFlow extends LightningElement {
             new FlowAttributeChangeEvent('selectionSummary', this.selectionSummary)
         ];
         
-        events.forEach(event => this.dispatchEvent(event));
+       events.forEach(event => this.dispatchEvent(event));
     }
 
     // Completar selección y continuar Flow
@@ -283,43 +278,9 @@ export default class ProductSelectorWithScreenFlow extends LightningElement {
         console.log('🧹 Limpiando búsqueda reactiva');
     }
 
-    // Búsqueda imperativa
-    handleImperativeSearch(event) {
-        this.imperativeSearchTerm = event.target.value;
-    }
+   
 
-    async handleImperativeSearchButton() {
-        if (!this.imperativeSearchTerm.trim()) {
-            this.showToast('Advertencia', 'Ingresa un término de búsqueda', 'warning');
-            return;
-        }
-        
-        this.isImperativeLoading = true;
-        this.imperativeError = null;
-        
-        try {
-            const result = await getProductsByName({ 
-                searchTerm: this.imperativeSearchTerm 
-            });
-            
-            this.imperativeProducts = result;
-            this.showToast('Búsqueda Manual', `${result.length} productos encontrados`, 'info');
-            console.log('✅ Búsqueda imperativa completada:', result.length);
-            
-        } catch (error) {
-            this.imperativeError = error;
-            this.imperativeProducts = [];
-            this.showToast('Error', 'Error en búsqueda: ' + error.body?.message, 'error');
-        } finally {
-            this.isImperativeLoading = false;
-        }
-    }
-
-    handleImperativeClear() {
-        this.imperativeSearchTerm = '';
-        this.imperativeProducts = [];
-        this.imperativeError = null;
-    }
+   
 
     async handleCreateSamples() {
         this.isCreatingSamples = true;
@@ -360,9 +321,7 @@ export default class ProductSelectorWithScreenFlow extends LightningElement {
         return this.products && this.products.length > 0;
     }
 
-    get hasImperativeProducts() {
-        return this.imperativeProducts && this.imperativeProducts.length > 0;
-    }
+   
 
     get searchSummary() {
         if (!this.searchTerm) {
@@ -376,17 +335,6 @@ export default class ProductSelectorWithScreenFlow extends LightningElement {
         return `${count} producto${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''}`;
     }
 
-    get imperativeSearchSummary() {
-        if (!this.imperativeSearchTerm) {
-            return 'Ingresa un término y haz clic en Buscar';
-        }
-        return `Búsqueda manual para "${this.imperativeSearchTerm}"`;
-    }
-
-    get imperativeProductCountMessage() {
-        const count = this.imperativeProducts ? this.imperativeProducts.length : 0;
-        return `${count} producto${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''} (búsqueda manual)`;
-    }
 
     get selectionMessage() {
         if (this.totalSelectedCount === 0) {

@@ -110,55 +110,7 @@
                 </div>
             </div>
 
-            <!-- 🔨 BÚSQUEDA IMPERATIVA -->
-            <div class="slds-box slds-theme_shade slds-m-bottom_medium">
-                <h3 class="slds-text-heading_small slds-m-bottom_small">
-                    🔨 Búsqueda Manual (Imperativa)
-                </h3>
-                
-                <lightning-layout>
-                    <lightning-layout-item size="8">
-                        <lightning-input
-                            type="text"
-                            label="Búsqueda Manual"
-                            placeholder="Escribe y haz clic en Buscar..."
-                            value={imperativeSearchTerm}
-                            onchange={handleImperativeSearch}
-                            field-level-help="Requiere hacer clic en el botón para buscar">
-                        </lightning-input>
-                    </lightning-layout-item>
-                    <lightning-layout-item size="4" class="slds-p-left_small">
-                        <div class="slds-m-top_large">
-                            <lightning-button-group>
-                                <lightning-button
-                                    variant="brand"
-                                    label="Buscar"
-                                    onclick={handleImperativeSearchButton}
-                                    disabled={isImperativeLoading}
-                                    icon-name="utility:search">
-                                </lightning-button>
-                                <lightning-button
-                                    variant="neutral"
-                                    label="Limpiar"
-                                    onclick={handleImperativeClear}
-                                    disabled={isImperativeLoading}
-                                    icon-name="utility:clear">
-                                </lightning-button>
-                            </lightning-button-group>
-                        </div>
-                    </lightning-layout-item>
-                </lightning-layout>
-                
-                <!-- Loading para búsqueda imperativa -->
-                <template if:true={isImperativeLoading}>
-                    <div class="slds-is-relative slds-m-top_small">
-                        <lightning-spinner alternative-text="Buscando..." size="small"></lightning-spinner>
-                        <p class="slds-text-align_center slds-m-top_x-small slds-text-body_small">
-                            Ejecutando búsqueda imperativa...
-                        </p>
-                    </div>
-                </template>
-            </div>
+           
 
             <!-- ❌ ERROR MESSAGE -->
             <template if:true={error}>
@@ -208,19 +160,20 @@
                                                 <span title={product.Name}>{product.Name}</span>
                                             </h2>
                                             <!-- Indicador de selección -->
-                                            <template for:each={selectedProductsInternal} for:item="selectedId">
-                                                <template if:true={selectedId}>
-                                                    <template if:true={product.Id}>
-                                                        <lightning-icon 
-                                                            key={selectedId}
-                                                            if:true={istheSameSelected}
-                                                            icon-name="utility:check"
-                                                            size="small"
-                                                            class="slds-text-color_success">
-                                                        </lightning-icon>
-                                                    </template>
-                                                </template>
-                                            </template>
+                                            <div class="slds-card__header">
+                                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                          
+                                            <!-- Check icon si está seleccionado -->
+                                            <div class="slds-no-flex">
+                                                <lightning-icon 
+                                                    if:true={product.isSelected}
+                                                    icon-name="utility:check"
+                                                    size="small"
+                                                    class="slds-text-color_success">
+                                                </lightning-icon>
+                                            </div>
+                                        </div>
+                                    </div>
                                         </div>
                                     </div>
                                     
@@ -260,55 +213,8 @@
                     </div>
                 </template>
 
-                <!-- Resultados imperativos -->
-                <template if:false={isImperativeLoading}>
-                    <template if:true={hasImperativeProducts}>
-                        <div class="slds-m-top_medium">
-                            <h4 class="slds-text-heading_small">{imperativeSearchSummary}</h4>
-                            <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">{imperativeProductCountMessage}</p>
-                            
-                            <div class="slds-grid slds-wrap slds-gutters">
-                                <template for:each={imperativeProducts} for:item="product">
-                                    <div key={product.Id} class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
-                                        <div class="slds-box slds-box_link product-card"
-                                             data-product-id={product.Id} 
-                                             data-product-name={product.Name}
-                                             onclick={handleProductSelection}
-                                             style="cursor: pointer;">
-                                            <h5 class="slds-text-heading_x-small slds-truncate">{product.Name}</h5>
-                                            <template if:true={product.ProductCode}>
-                                                <lightning-badge label={product.ProductCode} class="slds-m-top_x-small"></lightning-badge>
-                                            </template>
-                                            <span class="slds-badge slds-badge_inverse slds-m-left_x-small slds-m-top_x-small">Manual</span>
-                                            
-                                            <!-- Indicador de selección para productos imperativos -->
-                                            <template for:each={selectedProductsInternal} for:item="selectedId">
-                                                <template if:true={selectedId}>
-                                                    <template if:true={product.Id}>
-                                                        <lightning-icon 
-                                                            key={selectedId}
-                                                            if:true={istheSameSelected}
-                                                            icon-name="utility:check"
-                                                            size="small"
-                                                            class="slds-text-color_success slds-float_right">
-                                                        </lightning-icon>
-                                                    </template>
-                                                </template>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-                    
-                    <template if:true={imperativeError}>
-                        <div class="slds-notify slds-notify_alert slds-alert_error slds-m-top_small">
-                            <h4 class="slds-text-heading_x-small">Error en búsqueda imperativa:</h4>
-                            <p class="slds-m-top_x-small">{imperativeError.body.message}</p>
-                        </div>
-                    </template>
-                </template>
+            
+               
             </template>
 
             <!-- 🔧 INFORMACIÓN PARA DESARROLLADORES -->
