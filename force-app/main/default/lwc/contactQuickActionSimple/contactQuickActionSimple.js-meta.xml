@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>61.0</apiVersion>
+    <description>Simple Quick Action component for creating contacts with 5 essential fields</description>
+    <isExposed>true</isExposed>
+    <masterLabel>Contact Quick Action Simple</masterLabel>
+    <targets>
+        <target>lightning__RecordAction</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordAction">
+            <actionType>ScreenAction</actionType>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

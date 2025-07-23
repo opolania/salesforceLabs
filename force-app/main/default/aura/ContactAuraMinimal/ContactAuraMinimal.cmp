@@ -1,0 +1,6 @@
+<aura:component implements="lightning:actionOverride" access="global">
+    
+    <!-- Solo embedder el LWC -->
+    <c:contactQuickActionSimple />
+    
+</aura:component>

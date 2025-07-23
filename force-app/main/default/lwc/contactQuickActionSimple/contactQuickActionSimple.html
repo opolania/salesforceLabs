@@ -1,0 +1,160 @@
+<template>
+    <!-- Quick Action Modal Layout - 5 Campos -->
+    <div class="slds-scope">
+        
+        <!-- Header para Quick Action -->
+        <div class="slds-modal__header slds-p-around_medium">
+            <h2 class="slds-text-heading_medium slds-hyphenate">
+                <lightning-icon 
+                    icon-name="standard:contact" 
+                    alternative-text="Contact"
+                    size="small"
+                    class="slds-m-right_small">
+                </lightning-icon>
+                Nuevo Contacto
+            </h2>
+            <p class="slds-text-body_small slds-text-color_weak">
+                Complete la información básica para crear el contacto
+            </p>
+        </div>
+
+        <!-- Contenido del formulario -->
+        <div class="slds-modal__content slds-p-around_medium">
+            
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <div class="slds-align_absolute-center slds-p-around_large">
+                    <lightning-spinner 
+                        alternative-text="Creando contacto..." 
+                        size="medium">
+                    </lightning-spinner>
+                </div>
+            </template>
+
+            <!-- Formulario Simplificado - 5 Campos -->
+            <template if:false={isLoading}>
+                <div class="slds-form slds-form_stacked">
+                    
+                    <!-- Grid para nombres -->
+                    <div class="slds-grid slds-wrap slds-gutters_direct slds-m-bottom_medium">
+                        
+                        <!-- Campo Nombre -->
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-input 
+                                name="firstName"
+                                label="Nombre"
+                                value={firstName}
+                                data-field="firstName"
+                                onchange={handleInputChange}
+                                placeholder="Nombre del contacto">
+                            </lightning-input>
+                        </div>
+                        
+                        <!-- Campo Apellido - Requerido -->
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-input 
+                                name="lastName"
+                                label="Apellido"
+                                value={lastName}
+                                data-field="lastName"
+                                onchange={handleInputChange}
+                                required
+                                message-when-value-missing="El apellido es requerido"
+                                placeholder="Apellido del contacto">
+                            </lightning-input>
+                        </div>
+                    </div>
+                    
+                    <!-- Campo Account Lookup usando lightning-input-field -->
+                    <div class="slds-form-element slds-m-bottom_medium">
+                        <lightning-record-edit-form object-api-name="Contact">
+                            <lightning-input-field 
+                                field-name="AccountId"
+                                value={accountId}
+                                onchange={handleAccountChange}>
+                            </lightning-input-field>
+                        </lightning-record-edit-form>
+                    </div>
+                    
+                    <!-- Grid para contacto -->
+                    <div class="slds-grid slds-wrap slds-gutters_direct">
+                        
+                        <!-- Campo Email -->
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-input 
+                                name="email"
+                                label="Email"
+                                type="email"
+                                value={email}
+                                data-field="email"
+                                onchange={handleInputChange}
+                                placeholder="email@empresa.com">
+                            </lightning-input>
+                        </div>
+                        
+                        <!-- Campo Teléfono -->
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                            <lightning-input 
+                                name="phone"
+                                label="Teléfono"
+                                type="tel"
+                                value={phone}
+                                data-field="phone"
+                                onchange={handleInputChange}
+                                placeholder="(555) 123-4567">
+                            </lightning-input>
+                        </div>
+                    </div>
+                    
+                    <!-- Mensaje informativo simplificado -->
+                    <div class="slds-box slds-box_x-small slds-theme_info slds-m-top_medium">
+                        <p class="slds-text-body_small">
+                            <lightning-icon 
+                                icon-name="utility:info" 
+                                alternative-text="Información"
+                                size="xx-small"
+                                class="slds-m-right_x-small">
+                            </lightning-icon>
+                            Solo el apellido es obligatorio. Información adicional puede agregarse después.
+                        </p>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Footer con botones para Quick Action -->
+        <div class="slds-modal__footer slds-p-around_medium">
+            <div class="slds-grid slds-grid_align-end">
+                
+                <!-- Botón Cancelar -->
+                <lightning-button 
+                    variant="neutral"
+                    label="Cancelar"
+                    title="Cancelar creación"
+                    onclick={handleCancel}
+                    disabled={isLoading}
+                    class="slds-m-right_small">
+                </lightning-button>
+                
+                <!-- Botón Guardar y Nuevo -->
+                <lightning-button 
+                    variant="neutral"
+                    label={saveNewButtonLabel}
+                    title="Guardar y crear otro contacto"
+                    onclick={handleSaveAndNew}
+                    disabled={isLoading}
+                    class="slds-m-right_small">
+                </lightning-button>
+                
+                <!-- Botón Guardar -->
+                <lightning-button 
+                    variant="brand"
+                    label={saveButtonLabel}
+                    title="Guardar contacto"
+                    onclick={handleSave}
+                    disabled={isLoading}>
+                </lightning-button>
+            </div>
+        </div>
+    </div>
+</template>
