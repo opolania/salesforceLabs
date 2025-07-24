@@ -1,0 +1,123 @@
+<template>
+    <lightning-card title="Multiple Product Selector using lightning record picker" icon-name="standard:product">
+        <div class="slds-p-around_medium">
+            
+            <!-- Record Picker Section -->
+            <div class="slds-form-element slds-m-bottom_large">
+                <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_small">
+                    <lightning-icon 
+                        icon-name="utility:search" 
+                        size="x-small" 
+                        class="slds-m-right_x-small">
+                    </lightning-icon>
+                    <span class="slds-text-heading_small">Find Products</span>
+                </div>
+                
+                <lightning-record-picker
+                    label="Products"
+                    placeholder="Search Products..."
+                    object-api-name="Product2"
+                    onchange={handleRecordSelection}>
+                </lightning-record-picker>
+            </div>
+
+            <!-- Selected Products Section -->
+            <template lwc:if={hasItems}>
+                <div class="slds-form-element">
+                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small">
+                        <div class="slds-grid slds-grid_vertical-align-center">
+                            <lightning-icon 
+                                icon-name="utility:check" 
+                                size="x-small" 
+                                variant="success" 
+                                class="slds-m-right_x-small">
+                            </lightning-icon>
+                            <span class="slds-text-heading_small">Selected Products</span>
+                        </div>
+                        <lightning-badge label={itemCount} variant="brand"></lightning-badge>
+                    </div>
+                    
+                    <div class="slds-box slds-theme_shade slds-p-around_medium">
+                        <lightning-pill-container 
+                            items={items} 
+                            onitemremove={handleItemRemove}>
+                        </lightning-pill-container>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="slds-text-align_center slds-m-top_medium">
+                        <lightning-button 
+                            label="Save Selection"
+                            onclick={handleSave}
+                            variant="brand"
+                            icon-name="utility:save"
+                            class="slds-m-right_small">
+                        </lightning-button>
+                        <lightning-button 
+                            label="Clear All"
+                            onclick={handleClearAll}
+                            variant="destructive-text"
+                            icon-name="utility:clear">
+                        </lightning-button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Empty State -->
+            <template lwc:if={isEmpty}>
+                <div class="slds-illustration slds-illustration_small slds-text-align_center">
+                    <div class="slds-m-bottom_medium">
+                        <lightning-icon 
+                            icon-name="utility:package" 
+                            size="large" 
+                            class="slds-icon-text-light">
+                        </lightning-icon>
+                    </div>
+                    <h3 class="slds-illustration__header slds-text-heading_medium">
+                        No products selected
+                    </h3>
+                    <p class="slds-text-body_regular">
+                        Use the search above to find and select products
+                    </p>
+                </div>
+            </template>
+
+            <!-- Saved Products List -->
+            <template lwc:if={hasSavedProducts}>
+                <div class="slds-m-top_x-large">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_medium">
+                        <lightning-icon 
+                            icon-name="utility:save" 
+                            size="small" 
+                            variant="success" 
+                            class="slds-m-right_small">
+                        </lightning-icon>
+                        <h3 class="slds-text-heading_medium">Saved Product List</h3>
+                    </div>
+                    
+                    <div class="slds-box slds-theme_default">
+                        <ul class="slds-list_dotted">
+                            <template for:each={items} for:item="product">
+                                <li key={product.id} class="slds-item slds-text-body_regular">
+                                    <span class="slds-text-body_regular">{product.label}</span>
+                                    <span class="slds-text-color_weak"> (ID: {product.name})</span>
+                                </li>
+                            </template>
+                        </ul>
+                        
+                        <div class="slds-text-align_center slds-m-top_medium">
+                            <lightning-button 
+                                label="Clear Saved List"
+                                onclick={handleClearAll}
+                                variant="destructive-text"
+                                size="small"
+                                icon-name="utility:delete">
+                            </lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>
